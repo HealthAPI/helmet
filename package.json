@@ -29,6 +29,7 @@
   "devDependencies": {
     "grunt": "*",
     "grunt-contrib-watch": "*",
+    "grunt-coveralls": "^1.0.0",
     "grunt-sass": "*"
   }
 }
