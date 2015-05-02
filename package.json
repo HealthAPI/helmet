@@ -29,6 +29,6 @@
   "devDependencies": {
     "grunt": "*",
     "grunt-contrib-watch": "*",
-    "grunt-sass": "0.18.1"
+    "grunt-sass": "*"
   }
 }
