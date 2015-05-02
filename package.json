@@ -23,8 +23,10 @@
   },
   "homepage": "https://github.com/HealthAPI/helmet",
   "dependencies": {
+    "coveralls": "^2.11.2",
     "express": "4.12.3",
-    "jade": "1.9.2"
+    "jade": "1.9.2",
+    "mocha-lcov-reporter": "0.0.2"
   },
   "devDependencies": {
     "grunt": "*",
