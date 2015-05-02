@@ -6,6 +6,7 @@
 
 [![devDependency Status](https://david-dm.org/HealthAPI/helmet/dev-status.svg)](https://david-dm.org/HealthAPI/helmet#info=devDependencies)
 
+[![Coverage Status](https://coveralls.io/repos/HealthAPI/helmet/badge.svg)](https://coveralls.io/r/HealthAPI/helmet)
 
 # helmet
 helmet = health metrics
