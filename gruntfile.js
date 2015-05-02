@@ -8,6 +8,16 @@ module.exports = function(grunt) {
       }
     }
 
+    watch: {
+      source: {
+        files: ['sass/**/*.scss'],
+        tasks: ['sass'],
+        options: {
+          livereload: true,
+        }
+      }
+    }
+
   grunt.loadNpmTasks('grunt-sass');
   grunt.registerTask('default', ['sass']);
 };
