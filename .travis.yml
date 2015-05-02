@@ -3,17 +3,17 @@ node_js:
   - "0.12"
   - "0.11"
   - "0.10"
-  - "iojs"
-  - "iojs-v1.0.4"
+#  - "iojs"
+#  - "iojs-v1.0.4"
 
 
 addons:
     code_climate:
         repo_token: c7925e3ec3a68477a29fcca2456b7a6bf49df172b91de7fe2150876b622279fb
 
-env: CODECLIMATE_REPO_TOKEN=c7925e3ec3a68477a29fcca2456b7a6bf49df172b91de7fe2150876b622279fb codeclimate < lcov.info
+env: CODECLIMATE_REPO_TOKEN=c7925e3ec3a68477a29fcca2456b7a6bf49df172b91de7fe2150876b622279fb codeclimate < coverage/lcov.info
 
 script: travis_retry npm test
 
 after_script:
-  - codeclimate < lcov.info
+  - codeclimate < coverage/lcov.info

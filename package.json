@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/HealthAPI/helmet",
   "dependencies": {
+    "codeclimate-test-reporter": "0.0.4",
     "coveralls": "2.11.2",
     "express": "4.12.3",
     "istanbul": "0.3.13",
