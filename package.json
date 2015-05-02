@@ -4,7 +4,7 @@
   "description": "An API that allows healthcare app developers to incorporate complex industry metrics into their applications without having to be a data science expert",
   "main": "index.js",
   "scripts": {
-    "test": "npm test"
+    "test": "npm test --cover"
   },
   "repository": {
     "type": "git",
@@ -23,7 +23,7 @@
   },
   "homepage": "https://github.com/HealthAPI/helmet",
   "dependencies": {
-    "coveralls": "^2.11.2",
+    "coveralls": "2.11.2",
     "express": "4.12.3",
     "jade": "1.9.2",
     "mocha-lcov-reporter": "0.0.2"
@@ -31,7 +31,7 @@
   "devDependencies": {
     "grunt": "*",
     "grunt-contrib-watch": "*",
-    "grunt-coveralls": "^1.0.0",
+    "grunt-coveralls": "1.0.0",
     "grunt-sass": "*"
   }
 }
