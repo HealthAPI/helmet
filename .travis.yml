@@ -14,3 +14,6 @@ addons:
 env: CODECLIMATE_REPO_TOKEN=c7925e3ec3a68477a29fcca2456b7a6bf49df172b91de7fe2150876b622279fb codeclimate < lcov.info
 
 script: travis_retry npm test
+
+after_script:
+  - codeclimate < lcov.info
