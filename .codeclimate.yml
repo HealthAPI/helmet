@@ -6,6 +6,6 @@ languages:
 # For all languages, we support a standard set of Glob patterns.
 exclude_paths:
  - angular.js # Exclude a specific file
-# - app/controllers/* # Exclude all contents of a folder (including all subfolders)
+ - bower_components/*.js 
 # - app/controllers/*.py # Exclude specific files type within a folder/subfolders
 # - lib/**/*.rb # Recursively ignore all files ending in .rb
