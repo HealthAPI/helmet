@@ -2,6 +2,13 @@
 
 [![Code Climate](https://codeclimate.com/repos/554426f26956804030009d14/badges/fb6d8a2d9aa72673eb66/gpa.svg)](https://codeclimate.com/repos/554426f26956804030009d14/feed)  [![Build Status](https://travis-ci.org/HealthAPI/helmet.svg)](https://travis-ci.org/HealthAPI/helmet)  [![Test Coverage](https://codeclimate.com/repos/554426f26956804030009d14/badges/fb6d8a2d9aa72673eb66/coverage.svg)](https://codeclimate.com/repos/554426f26956804030009d14/feed)  [![devDependency Status](https://david-dm.org/HealthAPI/helmet/dev-status.svg)](https://david-dm.org/HealthAPI/helmet#info=devDependencies)  [![Coverage Status](https://coveralls.io/repos/HealthAPI/helmet/badge.svg)](https://coveralls.io/r/HealthAPI/helmet)
 
+* [Context](https://github.com/HealthAPI/helmet/tree/master#context)
+* [Market Forces & Industry Landscape](https://github.com/HealthAPI/helmet/tree/master#market-forces)
+* [The Product](https://github.com/HealthAPI/helmet/tree/master#the-product)
+* [How It Works](https://github.com/HealthAPI/helmet/tree/master#how-it-works)
+* [Starting Points](https://github.com/HealthAPI/helmet/tree/master#starting-points)
+* [Demo](https://github.com/HealthAPI/helmet/tree/master#demo)
+
 
 ### Context
 
@@ -19,20 +26,81 @@ These new algorithms/methodologies aren't just stuck somewhere in an ivory tower
 
 This all boils down to a simple point: ***The results of these new/advanced algorithms are in high demand by healthcare organizations, and the ability to implement these algorithms into their product will become a minimum price of entry for any new healthcare applications.***
 
-### The Product
+# The Product
 
 The proposed product is simple: an API that allows healthcare developers to easily incorporate these complex metrics into their application, without having to hire an entire data science team to do so.
 
-In one way or another, the results of these algorithms/models matter to everyone.  For insurance companies, they matter because they help project future costs.  For doctors, they matter because they influence physician compensation.  For patients, they matter because they can indicate patient's likeliness to become seriously ill.  Essentially, if you're building a new healthcare application for pretty much any audience in the industry, you will need to include these metrics in your product.
+In one way or another, the results of these algorithms/models matter to *everyone*.  For insurance companies, they matter because they help project future costs.  For doctors, they matter because they influence physician compensation.  For patients, they matter because they can indicate patient's likeliness to become seriously ill.  ***Essentially, if you're building a new healthcare application for any audience in the industry, you will need to include these metrics in your product.***
 
-### How does it work?
+### *More context...*
 
 Since the availability of electronic health data is still relatively new, the majority of the most-used algorithms today rely simply on "claims data".  Prior to an EMR (Electronic Medical Record), the only way for an insurance company to identify care given to their members was when they got the bill for it, i.e. the claim.  However, in adherence with popular compensation models at the time, these insurance claims rarely included the *outcome* of this care.  For example, if a physician orders some bloodwork for a patient, the insurance company would get two bills: one for the blood draw at the physician's office, and another one from the lab company for running the actual tests.  Niether of those bills could possibly include the *results* of the test, and as a result, insurance companies were forced to build the majority of their algorithms based primarily upon boolean data points.
 
  > Has the patient been diagnosed with diabetes? **Yes**
+
  > Has the patient received proper insulin medication? **Yes**
+
  > Has the patient received a blood sugar check within the last 6 months? **No**
 
- 
+These data points are then feed into the algorithm, and the result is often times referred to as a *risk score*.
 
-### Demo
+### How It Works
+
+Our product will provide healthcare developers with an easy way to integrate the results of these complex algorithms into their product.  We will provide a robust API that will allow applications to send a pre-defined set of data points, and in return they will receive the final *risk score* or metric from the algorithm identified in the request.
+
+A sample request to retrieve the output of the HCC model for a specific patient could look something like the following:
+
+```json
+{
+  "request_id": "1234567890",
+  "account_id": "123456",
+  "account_key": "...",
+  "request_type": "HCC",
+  "data": {
+    "id": "d769d282f37a3be76857c626f88e3946fdf1e43f",
+    "gender": "male",
+    "dob": "11/13/1987",
+    "race": "white",
+    "ethnicity": "non-hispanic",
+    "model_data": {
+      "disease_code": "250.01",
+      "diagnosis_date": "02/21/1991",
+      "last_office_visit": "03/25/2014"
+    },
+    "comments": "some random comments or something"
+  }
+}
+```
+
+And a sample response to the above request could look something like this:
+
+```json
+{
+  "request_id": "1234567890",
+  "account_id": "123456",
+  "account_key": "...",
+  "request_type": "HCC",
+  "data": {
+    "hcc_score": "13.2",
+    "hcc_level_abbr": "High Risk",
+    "hcc_level_full": "Patient is at high risk for diabetic complications and should be contacted immediately."
+  }
+}
+```
+
+This will enable any healthcare application to incorporate high levels of clinical intelligence into their product, without having to do any of the heavy lifting themselves.
+
+### Starting points
+
+Relying heavily on both industry experience and statistical modeling expertise, we can begin by identifying the top 5-10 most prevalent algorithms/models/methodologies across the industry.  We should prioritize our model selection/build based on the following criteria:
+
+1. **Current/Future Industry Adoption** - are people using this algorithm now?  Will they be in the future?
+2. **Implications of Algorithm** - What do the results of this algorithm actually mean, and how are the results applied?
+
+  > preference should be given to those algorithms which have a financial implication to the largest potential audience.  For example, an algorithm whose results carry heavy weight in the calculation of physician compensation should be prioritized above an algorithm that helps research-based clinicians identify target potential trial applicants.
+
+3.  **Implementation Complexity** - How difficult is the model to build?  How difficult is it to run?
+
+# Demo
+
+*coming soon...*
