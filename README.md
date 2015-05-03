@@ -2,6 +2,13 @@
 
 [![Code Climate](https://codeclimate.com/repos/554426f26956804030009d14/badges/fb6d8a2d9aa72673eb66/gpa.svg)](https://codeclimate.com/repos/554426f26956804030009d14/feed)  [![Build Status](https://travis-ci.org/HealthAPI/helmet.svg)](https://travis-ci.org/HealthAPI/helmet)  [![Test Coverage](https://codeclimate.com/repos/554426f26956804030009d14/badges/fb6d8a2d9aa72673eb66/coverage.svg)](https://codeclimate.com/repos/554426f26956804030009d14/feed)  [![devDependency Status](https://david-dm.org/HealthAPI/helmet/dev-status.svg)](https://david-dm.org/HealthAPI/helmet#info=devDependencies)  [![Coverage Status](https://coveralls.io/repos/HealthAPI/helmet/badge.svg)](https://coveralls.io/r/HealthAPI/helmet)
 
+* [Context](https://github.com/HealthAPI/helmet/tree/master#context)
+* [Market Forces & Industry Landscape](https://github.com/HealthAPI/helmet/tree/master#market-forces)
+* [The Product](https://github.com/HealthAPI/helmet/tree/master#the-product)
+* [How It Works](https://github.com/HealthAPI/helmet/tree/master#how-it-works)
+* [Starting Points](https://github.com/HealthAPI/helmet/tree/master#starting-points)
+* [Demo](https://github.com/HealthAPI/helmet/tree/master#demo)
+
 
 ### Context
 
@@ -94,6 +101,6 @@ Relying heavily on both industry experience and statistical modeling expertise, 
 
 3.  **Implementation Complexity** - How difficult is the model to build?  How difficult is it to run?
 
-### Demo
+# Demo
 
 *coming soon...*
