@@ -19,4 +19,8 @@ These new algorithms/methodologies aren't just stuck somewhere in an ivory tower
 
 This all boils down to a simple point: ***The results of these new/advanced algorithms are in high demand by healthcare organizations, and the ability to implement these algorithms into their product will become a minimum price of entry for any new healthcare applications.***
 
- 
+### The Product
+
+### How does it work?
+
+### Demo
