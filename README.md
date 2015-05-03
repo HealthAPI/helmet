@@ -1,6 +1,6 @@
-# helmet = Healthcare Metrics
+# helmet = HEaLthcare METrics
 
-[![Code Climate](https://codeclimate.com/repos/554426f26956804030009d14/badges/fb6d8a2d9aa72673eb66/gpa.svg)](https://codeclimate.com/repos/554426f26956804030009d14/feed)  [![Build Status](https://travis-ci.org/HealthAPI/helmet.svg)](https://travis-ci.org/HealthAPI/helmet)  [![Test Coverage](https://codeclimate.com/repos/554426f26956804030009d14/badges/fb6d8a2d9aa72673eb66/coverage.svg)](https://codeclimate.com/repos/554426f26956804030009d14/feed)  [![devDependency Status](https://david-dm.org/HealthAPI/helmet/dev-status.svg)](https://david-dm.org/HealthAPI/helmet#info=devDependencies)  [![Coverage Status](https://coveralls.io/repos/HealthAPI/helmet/badge.svg)](https://coveralls.io/r/HealthAPI/helmet)
+[![Code Climate](https://codeclimate.com/repos/554426f26956804030009d14/badges/fb6d8a2d9aa72673eb66/gpa.svg)](https://codeclimate.com/repos/554426f26956804030009d14/feed)  [![Build Status](https://travis-ci.org/HealthAPI/helmet.svg)](https://travis-ci.org/HealthAPI/helmet)  [![devDependency Status](https://david-dm.org/HealthAPI/helmet/dev-status.svg)](https://david-dm.org/HealthAPI/helmet#info=devDependencies)  [![Test Coverage](https://codeclimate.com/repos/554426f26956804030009d14/badges/fb6d8a2d9aa72673eb66/coverage.svg)](https://codeclimate.com/repos/554426f26956804030009d14/feed)
 
 * [Context](https://github.com/HealthAPI/helmet/tree/master#context)
 * [Market Forces & Industry Landscape](https://github.com/HealthAPI/helmet/tree/master#market-forces)
@@ -20,7 +20,7 @@ These models are not simple.  With perhaps the only exception being the actuaria
 
 ### Market Forces
 
-At the same time, we're seeing a completely new level of innovation surrounding healthcare software.  The availability of this new electronic data, combined with the willingness of CMS (Centers for Medicaid/Medicare Services) to actually expose this data via sites like [Healthdata.gov](http://www.healthdata.gov/), has helped to attract more developers into the healthcare space than ever before.  While data security is still a looming challenge for any healthcare startup, there is now less and less bureaucratic red tape surrounding healthcare technology.  **TL/DR: More people are building healthcare apps than ever before.**
+At the same time, we're seeing a completely new level of innovation surrounding healthcare software.  The availability of this new electronic data, combined with the willingness of CMS (Centers for Medicaid/Medicare Services) to actually expose this data via sites like [Healthdata.gov](http://www.healthdata.gov/), has helped to attract more developers into the healthcare space than ever before.  While data security is still a looming challenge for any healthcare startup, there is now less and less bureaucratic red tape surrounding healthcare technology.  **TL/DR: More developers are building healthcare apps today than at any time prior.**
 
 These new algorithms/methodologies aren't just stuck somewhere in an ivory tower, either.  They are already being put to use.  Hospitals and clinics are using these predictive methodologies to help identify patients in need of proactive intervention.  But perhaps even more importantly, **insurance companies have began using these algorithms to help determine physician compensation.**  To take a simplified example, a physician will earn a higher level of reimbursement from an insurance company if he/she can keep the total risk score of their patient population under a certain threshold.
 
