@@ -65,7 +65,35 @@ A sample request to retrieve the output of the HCC model for a specific patient 
 }
 ```
 
-Relying heavily on both industry experience and statistical modeling expertise, we can begin by identifying the top 5-10 most prevelant algorithms/models/methodologies across the industry.  We should prioritize
+And a sample response to the above request could look something like this:
 
+```json
+{
+  "request_id": "1234567890",
+  "account_id": "123456",
+  "account_key": "...",
+  "request_type": "HCC",
+  "data": {
+    "hcc_score": "13.2",
+    "hcc_level_abbr": "High Risk",
+    "hcc_level_full": "Patient is at high risk for diabetic complications and should be contacted immediately."
+  }
+}
+```
+
+This will enable any healthcare application to incorporate high levels of clinical intelligence into their product, without having to do any of the heavy lifting themselves.
+
+### Starting points
+
+Relying heavily on both industry experience and statistical modeling expertise, we can begin by identifying the top 5-10 most prevalent algorithms/models/methodologies across the industry.  We should prioritize our model selection/build based on the following criteria:
+
+1. **Current/Future Industry Adoption** - are people using this algorithm now?  Will they be in the future?
+2. **Implications of Algorithm** - What do the results of this algorithm actually mean, and how are the results applied?
+
+  > preference should be given to those algorithms which have a financial implication to the largest potential audience.  For example, an algorithm whose results carry heavy weight in the calculation of physician compensation should be prioritized above an algorithm that helps research-based clinicians identify target potential trial applicants.
+
+3.  **Implementation Complexity** - How difficult is the model to build?  How difficult is it to run?
 
 ### Demo
+
+*coming soon...*
