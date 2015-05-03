@@ -21,6 +21,18 @@ This all boils down to a simple point: ***The results of these new/advanced algo
 
 ### The Product
 
+The proposed product is simple: an API that allows healthcare developers to easily incorporate these complex metrics into their application, without having to hire an entire data science team to do so.
+
+In one way or another, the results of these algorithms/models matter to everyone.  For insurance companies, they matter because they help project future costs.  For doctors, they matter because they influence physician compensation.  For patients, they matter because they can indicate patient's likeliness to become seriously ill.  Essentially, if you're building a new healthcare application for pretty much any audience in the industry, you will need to include these metrics in your product.
+
 ### How does it work?
+
+Since the availability of electronic health data is still relatively new, the majority of the most-used algorithms today rely simply on "claims data".  Prior to an EMR (Electronic Medical Record), the only way for an insurance company to identify care given to their members was when they got the bill for it, i.e. the claim.  However, in adherence with popular compensation models at the time, these insurance claims rarely included the *outcome* of this care.  For example, if a physician orders some bloodwork for a patient, the insurance company would get two bills: one for the blood draw at the physician's office, and another one from the lab company for running the actual tests.  Niether of those bills could possibly include the *results* of the test, and as a result, insurance companies were forced to build the majority of their algorithms based primarily upon boolean data points.
+
+ > Has the patient been diagnosed with diabetes? **Yes**
+ > Has the patient received proper insulin medication? **Yes**
+ > Has the patient received a blood sugar check within the last 6 months? **No**
+
+ 
 
 ### Demo
