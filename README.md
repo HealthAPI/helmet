@@ -19,20 +19,53 @@ These new algorithms/methodologies aren't just stuck somewhere in an ivory tower
 
 This all boils down to a simple point: ***The results of these new/advanced algorithms are in high demand by healthcare organizations, and the ability to implement these algorithms into their product will become a minimum price of entry for any new healthcare applications.***
 
-### The Product
+# The Product
 
 The proposed product is simple: an API that allows healthcare developers to easily incorporate these complex metrics into their application, without having to hire an entire data science team to do so.
 
-In one way or another, the results of these algorithms/models matter to everyone.  For insurance companies, they matter because they help project future costs.  For doctors, they matter because they influence physician compensation.  For patients, they matter because they can indicate patient's likeliness to become seriously ill.  Essentially, if you're building a new healthcare application for pretty much any audience in the industry, you will need to include these metrics in your product.
+In one way or another, the results of these algorithms/models matter to *everyone*.  For insurance companies, they matter because they help project future costs.  For doctors, they matter because they influence physician compensation.  For patients, they matter because they can indicate patient's likeliness to become seriously ill.  ***Essentially, if you're building a new healthcare application for any audience in the industry, you will need to include these metrics in your product.***
 
-### How does it work?
+### *More context...*
 
 Since the availability of electronic health data is still relatively new, the majority of the most-used algorithms today rely simply on "claims data".  Prior to an EMR (Electronic Medical Record), the only way for an insurance company to identify care given to their members was when they got the bill for it, i.e. the claim.  However, in adherence with popular compensation models at the time, these insurance claims rarely included the *outcome* of this care.  For example, if a physician orders some bloodwork for a patient, the insurance company would get two bills: one for the blood draw at the physician's office, and another one from the lab company for running the actual tests.  Niether of those bills could possibly include the *results* of the test, and as a result, insurance companies were forced to build the majority of their algorithms based primarily upon boolean data points.
 
  > Has the patient been diagnosed with diabetes? **Yes**
+
  > Has the patient received proper insulin medication? **Yes**
+
  > Has the patient received a blood sugar check within the last 6 months? **No**
 
- 
+These data points are then feed into the algorithm, and the result is often times referred to as a *risk score*.
+
+### How It Works
+
+Our product will provide healthcare developers with an easy way to integrate the results of these complex algorithms into their product.  We will provide a robust API that will allow applications to send a pre-defined set of data points, and in return they will receive the final *risk score* or metric from the algorithm identified in the request.
+
+A sample request to retrieve the output of the HCC model for a specific patient could look something like the following:
+
+```json
+{
+  "request_id": "1234567890",
+  "account_id": "123456",
+  "account_key": "...",
+  "request_type": "HCC",
+  "data": {
+    "id": "d769d282f37a3be76857c626f88e3946fdf1e43f",
+    "gender": "male",
+    "dob": "11/13/1987",
+    "race": "white",
+    "ethnicity": "non-hispanic",
+    "model_data": {
+      "disease_code": "250.01",
+      "diagnosis_date": "02/21/1991",
+      "last_office_visit": "03/25/2014"
+    },
+    "comments": "some random comments or something"
+  }
+}
+```
+
+Relying heavily on both industry experience and statistical modeling expertise, we can begin by identifying the top 5-10 most prevelant algorithms/models/methodologies across the industry.  We should prioritize
+
 
 ### Demo
