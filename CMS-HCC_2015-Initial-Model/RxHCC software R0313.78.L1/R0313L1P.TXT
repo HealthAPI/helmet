@@ -1,0 +1,212 @@
+*****************************************************************************************
+*The following is JCL if you are using an IBM-type mainframe:
+*
+*
+*//JOBCARD
+*//HCCSY13 EXEC SAS9,REGION=8M,
+*// OPTIONS='ERRORS=0,NOCENTER,NEWS'
+*//WORK  DD SPACE=(CYL,(1000,2))
+*//WORK1   DD SPACE=(CYL,(2000,2))
+*//LIBRARY DD DISP=SHR,DSN=XXXX.XXXXXXX.FORMATS  /* user-defined location of formats */
+*//IN0 DD DISP=SHR,DSN=XXXX.XXXXXX   /*user-defined the location of macros  */
+*//IN1 DD DISP=SHR,DSN=XXXX.PERSON     /*the location of person-level file  */
+*//IN2 DD DISP=SHR,DSN=XXXX.DIAG       /*the location of the diagnosis file */  
+*//INCOEF DD DISP=SHR,DSN=XXXX.RXCOEFF /*the location of the file containing all coefficients */
+*//OUT DD DISP=(NEW,CATLG,KEEP),
+*//    DSN=XXX.RXSY13.PERSON,         /*the output file containing person-level scores */ 
+*//    SPACE=(TRK,(20,10),RLSE)
+*//SYSIN  DD *
+*
+*
+******************************************************************************************
+*  If you are using PC-SAS, you must specify the location of the files 
+*  on your PC in a libname/filename statement;
+*
+*LIBNAME LIBRARY "location of formats";
+*FILENAME IN0 "location of macros";  
+*LIBNAME IN1 "location of person-level file";
+*LIBNAME IN2 "location of diagnosis file";
+*LIBNAME INCOEF "location of the coefficients file";
+*LIBNAME OUT "location for the output file"; 
+*
+ ***********************************************************************
+ *  
+ *   DESCRIPTION:
+ *
+ * R0313L1P program creates 78 RXHCC variables (&RXHCCV3_list78) and 
+ * eight score variables for each person who is present in the PERSON 
+ * file (provided by the user).
+ * If a person has at least one diagnosis in the DIAG file (provided by 
+ * the user) then RXHCC variables are created, otherwise RXHCCs are set 
+ * to 0.
+ * Score variables are created using coefficients from the eight final
+ * models - five risk adjustable models and three new enrollee models:
+ *     1) Community, Non-Low Income, Aged, Continuing Enrollee
+ *     2) Community, Non-Low Income, Non-Aged, Continuing Enrollee
+ *     3) Community, Low Income, Aged, Continuing Enrollee
+ *     4) Community, Low Income, Non-Aged, Continuing Enrollee
+ *     5) Institutional Continuing Enrollee
+ *     6) Community, Non-Low Income, New Enrollee
+ *     7) Community, Low Income, New Enrollee
+ *     8) Institutional New Enrollee
+ *
+ * Assumptions about input files:
+ *   - both PERSON and DIAG files are sorted by person ID
+ *
+ *   - person level file has the following variables:
+ *     :&IDVAR   - person ID variable (HICNO for Medicare data)
+ *     :DOB      - date of birth
+ *     :SEX      - sex
+ *     :OREC     - original reason for entitlement
+ *     :ESRD     - end stage renal disease 
+ *
+ *   - diagnosis level file has the following vars:
+ *     :&IDVAR - person ID variable 
+ *     :DIAG   - diagnosis
+ *
+ * The program supplies parameters to a main macro %R0313L1M that calls
+ * other external macros:
+ *     %AGESEXV4  - create age/sex and originally disabled variables
+ *     %R02X78M2  - assign one ICD9 to multiple RXCCs
+ *     %R02X78L1  - assign labels to RXHCCs
+ *     %R02X78H1  - set RXHCC=0 according to hierarchies
+ *     %SCOREVAR  - calculate a score variable
+ * Comment:  
+ *     any format from ICD9 to 78 V03 RxCC can be used in the software.
+ *     It should be specified as parameter FMNAME in the main macro 
+ *     call. 
+ *
+ * Program steps:
+ *         step1: include external macros
+ *         step2: define internal macro variables
+ *         step3: merge person and diagnosis files outputting one
+ *                record per person for each input person level record
+ *         step3.1: declaration section
+ *         step3.2: bring regression coefficients
+ *         step3.3: merge person and diagnosis file
+ *         step3.4: for the first record for a person set CC to 0
+ *                  and calculate age
+ *         step3.5: if there are any diagnoses for a person
+ *                  then do the following:
+ *                   - create RXCC using format specified in parameter
+ *                     FMNAME
+ *                   - create additional RXCC using R02X78M2 macro
+ *         step3.6: for the last record for a person do the
+ *                  following:
+ *                   - create demographic variables needed
+ *                     for regressions (macro AGESEXV4)
+ *                   - create RXHCC using hierarchies (macro R02X78H1)
+ *                   - create RXHCC interaction variables
+ *                   - create RXHCC and NonAged interaction variables
+ *                   - set RXHCCs and interaction vars to zero if there
+ *                     are no diagnoses for a person
+ *                   - create scores for risk adjustable models
+ *                   - create scores for new enrollee models
+ *         step4: data checks and proc contents
+ *
+ *   USER CUSTOMIZATION:
+ * The user must provide 2 files with the variables described above and
+ * set the following parameters:
+ *      INP      - SAS input person dataset
+ *      IND      - SAS input diagnosis dataset
+ *      OUTDATA  - SAS output dataset
+ *      IDVAR    - name of person id variable (HICNO for Medicare data)
+ *      KEEPVAR  - variables kept in output dataset in addition to 
+ *                 PersonID
+ *      SEDITS   - a switch that controls whether to perform edits 
+ *                 on ICD9: 1-YES, 0-NO  
+ *      DATE_ASOF- as-of date to calculate age (February 1 of payment
+ *                 year)
+ *      FMNAME   - format to crosswalk ICD9 to V03 RXCC
+ *      AGEFMT   - format to crosswalk ICD9 to acceptable age range in
+ *                 case edits on ICD9 are to be performed
+ *      SEXFMT   - format to crosswalk ICD9 to acceptable sex in case
+ *                 edits on ICD9 are to be performed
+ **********************************************************************;
+
+ * input variables from PERSON file (in addition to Person ID variable); 
+ %LET INPUTVARS=%STR(SEX DOB OREC ESRD);             
+
+ * 24 continuing enrollee age/sex variables;
+ %let AGESEXVARS=%str(
+  F0_34  F35_44 F45_54 F55_59 F60_64 F65_69
+  F70_74 F75_79 F80_84 F85_89 F90_94 F95_GT
+  M0_34  M35_44 M45_54 M55_59 M60_64 M65_69
+  M70_74 M75_79 M80_84 M85_89 M90_94 M95_GT
+ );
+
+ * 32 new enrollee age/sex variables;
+ %let NEAGESEXVARS=%str(
+  NEF0_34 NEF35_44 NEF45_54 NEF55_59 NEF60_64 NEF65    NEF66    NEF67    
+  NEF68   NEF69    NEF70_74 NEF75_79 NEF80_84 NEF85_89 NEF90_94 NEF95_GT
+  NEM0_34 NEM35_44 NEM45_54 NEM55_59 NEM60_64 NEM65    NEM66    NEM67    
+  NEM68   NEM69    NEM70_74 NEM75_79 NEM80_84 NEM85_89 NEM90_94 NEM95_GT
+ );
+
+ * 6 demographic variables;
+ %let DEMVARS=%str(
+  AGEF 
+  ORIGDS 
+  NonAged
+  F65OD 
+  M65OD 
+ );
+
+ * 78 payment RXHCCs;
+ %let RXHCCV3_list78 =%str( 
+  RXHCC1   RXHCC5   RXHCC8   RXHCC9   RXHCC10  RXHCC11  RXHCC14  
+  RXHCC15  RXHCC18  RXHCC19  RXHCC20  RXHCC21  RXHCC23  RXHCC25  
+  RXHCC30  RXHCC31  RXHCC32  RXHCC33  RXHCC38  RXHCC40  RXHCC41  
+  RXHCC42  RXHCC45  RXHCC47  RXHCC48  RXHCC49  RXHCC50  RXHCC54  
+  RXHCC55  RXHCC58  RXHCC59  RXHCC60  RXHCC61  RXHCC62  RXHCC63  
+  RXHCC65  RXHCC66  RXHCC67  RXHCC68  RXHCC71  RXHCC72  RXHCC74  
+  RXHCC75  RXHCC76  RXHCC78  RXHCC79  RXHCC80  RXHCC81  RXHCC83  
+  RXHCC86  RXHCC87  RXHCC88  RXHCC89  RXHCC93  RXHCC97  RXHCC98  
+  RXHCC100 RXHCC101 RXHCC103 RXHCC104 RXHCC105 RXHCC106 RXHCC111 
+  RXHCC113 RXHCC120 RXHCC121 RXHCC122 RXHCC123 RXHCC124 RXHCC125
+  RXHCC126 RXHCC142 RXHCC145 RXHCC147 RXHCC156 RXHCC166 RXHCC167 
+  RXHCC168 
+ );
+
+ * 78 payment RXCCs;
+ %let RXCCV3_list78 =%str( 
+  RXCC1   RXCC5   RXCC8   RXCC9   RXCC10  RXCC11  RXCC14  
+  RXCC15  RXCC18  RXCC19  RXCC20  RXCC21  RXCC23  RXCC25  
+  RXCC30  RXCC31  RXCC32  RXCC33  RXCC38  RXCC40  RXCC41  
+  RXCC42  RXCC45  RXCC47  RXCC48  RXCC49  RXCC50  RXCC54  
+  RXCC55  RXCC58  RXCC59  RXCC60  RXCC61  RXCC62  RXCC63  
+  RXCC65  RXCC66  RXCC67  RXCC68  RXCC71  RXCC72  RXCC74  
+  RXCC75  RXCC76  RXCC78  RXCC79  RXCC80  RXCC81  RXCC83  
+  RXCC86  RXCC87  RXCC88  RXCC89  RXCC93  RXCC97  RXCC98  
+  RXCC100 RXCC101 RXCC103 RXCC104 RXCC105 RXCC106 RXCC111 
+  RXCC113 RXCC120 RXCC121 RXCC122 RXCC123 RXCC124 RXCC125
+  RXCC126 RXCC142 RXCC145 RXCC147 RXCC156 RXCC166 RXCC167 
+  RXCC168 
+ );
+
+ * 8 score variables;
+ %let SCOREVARS=%str(
+  SCORE_CE_NonLowInc_Aged 
+  SCORE_CE_NonLowInc_NonAged 
+  SCORE_CE_LowInc_Aged 
+  SCORE_CE_LowInc_NonAged 
+  SCORE_CE_Institutional 
+  SCORE_NE_NonLowInc_Community
+  SCORE_NE_LowInc_Community
+  SCORE_NE_Institutional
+ );
+
+
+ %INCLUDE IN0(R0313L1M)/SOURCE2;
+
+ %R0313L1M( INP      =IN1.PERSON,
+            IND      =IN2.DIAG,
+            OUTDATA  =OUT.PERSON,
+            IDVAR    =HICNO,
+            KEEPVAR  =HICNO &INPUTVARS &SCOREVARS &DEMVARS &AGESEXVARS 
+                      &NEAGESEXVARS &RXHCCV3_list78 &RXCCV3_list78,
+            SEDITS   =1,
+            DATE_ASOF="1FEB2013"D,
+            FMNAME   =I03131Y12Y13RX,
+            AGEFMT   =AGEY12Y13MCE,
+            SEXFMT   =SEXY12Y13MCE);
