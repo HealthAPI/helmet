@@ -1,0 +1,1359 @@
+********************************************************************************;
+* Syntax to Calculate Risk Categories for Congenital Heart Surgery-1 (RACHS-1) *;
+********************************************************************************;
+
+%MACRO MULTI(PC,RC);
+
+ multiple=1; 
+ if chdsurg1=' ' then do;
+  chdsurg1=&PC.; risk1=&RC.; end;
+ else if chdsurg1 ne ' ' and chdsurg2=' ' then do;
+  chdsurg2=&PC.; risk2=&RC.; end;
+ else if chdsurg2 ne ' ' and chdsurg3=' ' then do;
+  chdsurg3=&PC.; risk3=&RC.; end;
+ else if chdsurg3 ne ' ' and chdsurg4=' ' then do;
+  chdsurg4=&PC.; risk4=&RC.; end;
+ else if chdsurg4 ne ' ' and chdsurg5=' ' then do;
+  chdsurg5=&PC.; risk5=&RC.; end;
+ else if chdsurg5 ne ' ' and chdsurg6=' ' then do;
+  chdsurg6=&PC.; risk6=&RC.; end;
+ else if chdsurg6 ne ' ' and chdsurg7=' ' then do;
+  chdsurg7=&PC.; risk7=&RC.; end;
+ else if chdsurg7 ne ' ' and chdsurg8=' ' then do;
+  chdsurg8=&PC.; risk8=&RC.; end;
+ else if chdsurg8 ne ' ' and chdsurg9=' ' then do;
+  chdsurg9=&PC.; risk9=&RC.; end;
+
+%MEND;
+
+** Identify major noncardiac structural anomalies **;
+
+strcabn=0;          
+array dxstrca $ dx1-dx&NDX.;
+do over dxstrca;
+   if dxstrca in ('7400','7401','7402','7410','7419',
+                  '7420','7421','7422','7423','7424',
+                  '7429','7480','7482','7483','7484',
+                  '7503','7511','7512','7514','75161',
+                  '7530','75315','7532','7535','7566',
+                  '7567') then strcabn=1;
+   else if dxstrca ge: '7425' and dxstrca lt: '7426' then strcabn=1;
+   else if dxstrca ge: '7490' and dxstrca lt: '7493' then strcabn=1;
+end; 
+
+** Initialize surgical procedure variables **; 
+length chdsurg chdsurg1-chdsurg9 $10;  
+ 
+********************************************************************************;
+* Identify Specified Diagnoses                                                 *;
+********************************************************************************;
+
+** Diagnosis - Common Truncus **;
+dx7450=0;            
+array dxct $ dx1-dx&NDX.;
+do over dxct;
+ if dxct = '7450' then dx7450=dx7450+1;
+end;
+
+** Diagnosis - Complete Transposition or DORV **;
+dxdorv=0;            
+array dxtgv $ dx1-dx&NDX.;
+do over dxtgv;
+ if dxtgv in ('74510','74511') then dxdorv=dxdorv+1;
+end;
+
+** Diagnosis - Tetralogy of Fallot **;
+dx7452=0;            
+array dxtof $ dx1-dx&NDX.;
+do over dxtof;
+ if dxtof = '7452' then dx7452=dx7452+1;
+end;
+
+** Diagnosis - Ventricular Septal Defect **;
+dx7454=0;            
+array dxvsd $ dx1-dx&NDX.;
+ do over dxvsd;
+  if dxvsd = '7454' then dx7454=dx7454+1;
+ end;
+
+** Diagnosis - Atrial Septal Defect **;
+dx7455=0;            
+array dxasd $ dx1-dx&NDX.;
+ do over dxasd;
+  if dxasd = '7455' then dx7455=dx7455+1;
+ end;
+
+** Diagnosis - Endocardial Cushion Defect **;
+dx7456=0;                                    
+array dxendo $ dx1-dx&NDX.;                
+do over dxendo;
+ if dxendo in ('74560','74561','74569') then dx7456=dx7456+1;
+end; 
+
+** Diagnosis - Endocardial Cushion Defect, unspecified **;
+dx74560=0;            
+array dxuendo $ dx1-dx&NDX.;
+do over dxuendo;
+ if dxuendo = '74560' then dx74560=dx74560+1;
+end;
+
+** Diagnosis - Ostium Primum Defect **;
+dx74561=0;            
+array dxostp $ dx1-dx&NDX.;
+do over dxostp;
+ if dxostp = '74561' then dx74561=dx74561+1;
+end;
+
+** Diagnosis - Endocardial Cushion Defect, other **;
+dx74569=0;            
+array dxoendo $ dx1-dx&NDX.;
+do over dxoendo;
+ if dxoendo = '74569' then dx74569=dx74569+1;
+end;
+
+** Diagnosis - Pulmonary Valve Atresia **;
+dx74601=0;            
+array dxatrc $ dx1-dx&NDX.;
+do over dxatrc;
+ if dxatrc = '74601' then dx74601=dx74601+1;
+end;
+
+** Diagnosis - Ebstein's Anomaly **;
+dx7462=0;            
+array dxebs $ dx1-dx&NDX.;
+do over dxebs;
+ if dxebs = '7462' then dx7462=dx7462+1;
+end;
+
+** Diagnosis - Congenital AV Stenosis **;
+dx7463=0;            
+array dxcavs $ dx1-dx&NDX.;
+do over dxcavs;
+ if dxcavs = '7463' then dx7463=dx7463+1;
+end;
+
+** Diagnosis - Congenital Mitral Stenosis **;
+dx7465=0;            
+array dxcmvs $ dx1-dx&NDX.;
+do over dxcmvs;
+ if dxcmvs = '7465' then dx7465=dx7465+1;
+end;
+
+** Diagnosis - Hypoplastic Left Heart Syndrome **;
+dx7467=0;            
+array dxhlhs $ dx1-dx&NDX.;
+do over dxhlhs;
+ if dxhlhs = '7467' then dx7467=dx7467+1;
+end;
+
+** Diagnosis - Subaortic Stenosis **;
+dx74681=0;            
+array dxsubas $ dx1-dx&NDX.;
+do over dxsubas;
+ if dxsubas = '74681' then dx74681=dx74681+1;
+end;
+
+** Diagnosis - Cor Triatriatum **;
+dx74682=0;            
+array dxcort $ dx1-dx&NDX.;
+do over dxcort;
+ if dxcort = '74682' then dx74682=dx74682+1;
+end;
+
+** Diagnosis - Coarctation of Aorta **;
+dx74710=0;            
+array dxcoa $ dx1-dx&NDX.;
+do over dxcoa;
+ if dxcoa = '74710' then dx74710=dx74710+1;
+end;
+
+** Diagnosis - Interruption of Aortic Arch **;
+dx74711=0;            
+array dxiaa $ dx1-dx&NDX.;
+do over dxiaa;
+ if dxiaa = '74711' then dx74711=dx74711+1;
+end;
+
+** Diagnosis - Anomalies of Aortic Arch **;
+dx74721=0;            
+array dxaaa $ dx1-dx&NDX.;
+do over dxaaa;
+ if dxaaa = '74721' then dx74721=dx74721+1;
+end;
+
+** Diagnosis - Atresia and Stenosis of Aorta **;
+dx74722=0;            
+array dxasa $ dx1-dx&NDX.;
+do over dxasa;
+ if dxasa = '74722' then dx74722=dx74722+1;
+end;
+
+** Diagnosis - Partial Anomalous PV Connection **;
+dx74742=0;            
+array dxpapvc $ dx1-dx&NDX.;
+do over dxpapvc;
+ if dxpapvc = '74742' then dx74742=dx74742+1;
+end;
+
+** Diagnosis - Other Anomalies of Great Veins  **;
+dx74789=0;            
+array dxoagv $ dx1-dx&NDX.;
+do over dxoagv;
+ if dxoagv = '74789' then dx74789=dx74789+1;
+end;
+
+********************************************************************************;
+* Identify Specified Procedures                                                *;
+********************************************************************************;
+
+** Procedure - PDA Surgery **;
+prpda=0;            
+if MDX3D > 0 and MPR3EP > 0 then prpda=MPR3EP;
+
+** Procedure - Unspecified Valvotomy **;
+pr3500=0;            
+array proc3500 $ pr1-pr&NPR.;
+do over proc3500;
+  if proc3500 = '3500' then pr3500=pr3500+1;
+end;
+
+** Procedure - Aortic Valvotomy **;
+pr3501=0;            
+array proc3501 $ pr1-pr&NPR.;
+do over proc3501;
+  if proc3501 = '3501' then pr3501=pr3501+1;
+end;
+
+** Procedure - Mitral Valvotomy **;
+pr3502=0;            
+array proc3502 $ pr1-pr&NPR.;
+do over proc3502;
+  if proc3502 = '3502' then pr3502=pr3502+1;
+end;
+
+** Procedure - Pulmonary Valvotomy **;
+pr3503=0;            
+array proc3503 $ pr1-pr&NPR.;
+do over proc3503;
+  if proc3503 = '3503' then pr3503=pr3503+1;
+end;
+
+** Procedure - Tricuspid Valvotomy **;
+pr3504=0;            
+array proc3504 $ pr1-pr&NPR.;
+do over proc3504;
+  if proc3504 = '3504' then pr3504=pr3504+1;
+end;
+
+** Procedure - Unspecified Valvuloplasty **;
+pr3510=0;            
+array proc3510 $ pr1-pr&NPR.;
+do over proc3510;
+  if proc3510 = '3510' then pr3510=pr3510+1;
+end;
+
+** Procedure - Aortic Valvuloplasty **;
+pr3511=0;            
+array proc3511 $ pr1-pr&NPR.;
+do over proc3511;
+  if proc3511 = '3511' then pr3511=pr3511+1;
+end;
+
+** Procedure - Mitral Valvuloplasty **;
+pr3512=0;            
+array proc3512 $ pr1-pr&NPR.;
+do over proc3512;
+  if proc3512 = '3512' then pr3512=pr3512+1;
+end;
+
+** Procedure - Pulmonary Valvuloplasty **;
+pr3513=0;            
+array proc3513 $ pr1-pr&NPR.;
+do over proc3513;
+  if proc3513 = '3513' then pr3513=pr3513+1;
+end;
+
+** Procedure - Tricuspid Valvuloplasty **;
+pr3514=0;            
+array proc3514 $ pr1-pr&NPR.;
+do over proc3514;
+  if proc3514 = '3514' then pr3514=pr3514+1;
+end;
+
+** Procedure - Replacement of Unspecified Valve **;
+pr3520=0;            
+array proc3520 $ pr1-pr&NPR.;
+do over proc3520;
+  if proc3520 = '3520' then pr3520=pr3520+1;
+end;
+
+** Procedure - Aortic Valve Replacement **;
+pravr=0;            
+array procavr $ pr1-pr&NPR.;
+do over procavr;
+  if procavr in ('3521','3522') then pravr=pravr+1;
+end;
+
+** Procedure - Mitral Valve Replacement **;
+prmvr=0;            
+array procmvr $ pr1-pr&NPR.;
+do over procmvr;
+  if procmvr in ('3523','3524') then prmvr=prmvr+1;
+end;
+
+** Procedure - Pulmonary Valve Replacement **;
+prpvr=0;            
+array procpvr $ pr1-pr&NPR.;
+do over procpvr;
+ if procpvr in ('3525','3526') then prpvr=prpvr+1;
+end;
+
+** Procedure - Tricuspid Valve Replacement **;
+prtvr=0;            
+array proctvr $ pr1-pr&NPR.;
+do over proctvr;
+ if proctvr in ('3527','3528') then prtvr=prtvr+1;
+end;
+
+** Procedure - Operation on Papillary Muscle **;
+pr3531=0;            
+array proc3531 $ pr1-pr&NPR.;
+do over proc3531;
+  if proc3531 = '3531' then pr3531=pr3531+1;
+end;
+
+** Procedure - Operation on Chordae Tendineae **;
+pr3532=0;            
+array proc3532 $ pr1-pr&NPR.;
+do over proc3532;
+  if proc3532 = '3532' then pr3532=pr3532+1;
+end;
+
+** Procedure - Annuloplasty **;
+pr3533=0;            
+array proc3533 $ pr1-pr&NPR.;
+do over proc3533;
+  if proc3533 = '3533' then pr3533=pr3533+1;
+end;
+
+** Procedure - Infundibulectomy **;
+pr3534=0;            
+array proc3534 $ pr1-pr&NPR.;
+do over proc3534;
+  if proc3534 = '3534' then pr3534=pr3534+1;
+end;
+
+** Procedure - Operation on Trabeculae Carnae Cordis **;
+pr3535=0;            
+array proc3535 $ pr1-pr&NPR.;
+do over proc3535;
+  if proc3535 = '3535' then pr3535=pr3535+1;
+end;
+
+** Procedure - Operation on Other Structures **;
+pr3539=0;            
+array proc3539 $ pr1-pr&NPR.;
+do over proc3539;
+  if proc3539 = '3539' then pr3539=pr3539+1;
+end;
+
+** Procedure - Enlargement of Existing Septal Defect **;
+pr3541=0;            
+array proc3541 $ pr1-pr&NPR.;
+do over proc3541;
+  if proc3541 = '3541' then pr3541=pr3541+1;
+end;
+
+** Procedure - Creation of Septal Defect **;
+pr3542=0;            
+array proc3542 $ pr1-pr&NPR.;
+do over proc3542;
+  if proc3542 = '3542' then pr3542=pr3542+1;
+end;
+
+** Procedure - Repair of Unspecified Septal Defect **;
+prusd=0;            
+array procusd $ pr1-pr&NPR.;
+do over procusd;
+ if procusd in ('3550','3560','3570') then prusd=prusd+1;
+end;
+
+** Procedure - Repair of Atrial Septal Defect **;
+prasd=0;            
+array procasd $ pr1-pr&NPR.;
+do over procasd;
+ if procasd in ('3551','3552','3561','3571') then prasd=prasd+1;
+end;
+
+** Procedure - Repair of Ventricular Septal Defect **;
+prvsd=0;            
+array procvsd $ pr1-pr&NPR.;
+do over procvsd;
+ if procvsd in ('3553','3562','3572') then prvsd=prvsd+1;
+end;
+
+** Procedure - Repair of Endocardial Cushion Defect **;
+prendo=0;            
+array procendo $ pr1-pr&NPR.;
+do over procendo;
+ if procendo in ('3554','3563','3573') then prendo=prendo+1;
+end;
+
+** Procedure - Total Repair of TOF **;
+pr3581=0;            
+array proc3581 $ pr1-pr&NPR.;
+do over proc3581;
+ if proc3581 = '3581' then pr3581=pr3581+1;
+end;
+
+** Procedure - Total Repair of TAPVC **;
+pr3582=0;            
+array proc3582 $ pr1-pr&NPR.;
+do over proc3582;
+ if proc3582 = '3582' then pr3582=pr3582+1;
+end;
+
+** Procedure - Total Repair of Truncus Arteriosus **;
+pr3583=0;            
+array proc3583 $ pr1-pr&NPR.;
+do over proc3583;
+ if proc3583 = '3583' then pr3583=pr3583+1;
+end;
+
+** Procedure - Total Correction of TGA **;
+pr3584=0;            
+array proc3584 $ pr1-pr&NPR.;
+do over proc3584;
+ if proc3584 = '3584' then pr3584=pr3584+1;
+end;
+
+** Procedure - Interatrial Transposition of Venous Return  **;
+pr3591=0;            
+array proc3591 $ pr1-pr&NPR.;
+do over proc3591;
+ if proc3591 = '3591' then pr3591=pr3591+1;
+end;
+
+** Procedure - Conduit Between RV and PA **;
+pr3592=0;            
+array proc3592 $ pr1-pr&NPR.;
+do over proc3592;
+ if proc3592 = '3592' then pr3592=pr3592+1;
+end;
+
+** Procedure - Creation of Conduit Between LV Aorta **;
+pr3593=0;            
+array proc3593 $ pr1-pr&NPR.;
+do over proc3593;
+  if proc3593 = '3593' then pr3593=pr3593+1;
+end;
+
+** Procedure - Conduit Between Atrium and Pulmonary Artery **;
+pr3594=0;            
+array proc3594 $ pr1-pr&NPR.;
+do over proc3594;
+ if proc3594 = '3594' then pr3594=pr3594+1;
+end;
+
+** Procedure - Revision of Corrective Procedure **;
+pr3595=0;            
+array proc3595 $ pr1-pr&NPR.;
+do over proc3595;
+ if proc3595 = '3595' then pr3595=pr3595+1;
+end;
+
+** Procedure - Other Operation on Septa **;
+pr3598=0;            
+array proc3598 $ pr1-pr&NPR.;
+do over proc3598;
+ if proc3598 = '3598' then pr3598=pr3598+1;
+end;
+
+** Procedure - Other Operation on Valves **;
+pr3599=0;            
+array proc3599 $ pr1-pr&NPR.;
+do over proc3599;
+ if proc3599 = '3599' then pr3599=pr3599+1;
+end;
+
+** Procedure - Other Operation on Vessel **;
+pr3699=0;            
+array proc3699 $ pr1-pr&NPR.;
+do over proc3699;
+ if proc3699 = '3699' then pr3699=pr3699+1;
+end;
+
+** Procedure - Excision/Destruction of Other Lesion/Tissue **;
+pr3733=0;            
+array proc3733 $ pr1-pr&NPR.;
+do over proc3733;
+  if proc3733 = '3733' then pr3733=pr3733+1;
+end;
+
+** Procedure - Resection of Vessel/Aorta **;
+prresec=0;            
+array procres $ pr1-pr&NPR.;
+do over procres;
+ if procres in ('3834','3835','3844','3845',
+    '3864','3865','3884','3885') then prresec=prresec+1;
+end;
+
+** Procedure - Other Surgical Occlusion of Abdominal Aorta **;
+pr3884=0;            
+array proc3884 $ pr1-pr&NPR.;
+do over proc3884;
+  if proc3884 = '3884' then pr3884=pr3884+1;
+end;
+
+** Procedure - Systemic to Pulmonary Artery Shunt **;
+pr390=0;            
+array proc390 $ pr1-pr&NPR.;
+do over proc390;
+ if proc390 = '390' then pr390=pr390+1;
+end;
+
+** Procedure - Caval Pulmonary Artery Anastomosis **;
+pr3921=0;            
+array proc3921 $ pr1-pr&NPR.;
+do over proc3921;
+ if proc3921 = '3921' then pr3921=pr3921+1;
+end;
+
+** Procedure - Other Revision of Vascular Procedure **;
+pr3949=0;            
+array proc3949 $ pr1-pr&NPR.;
+do over proc3949;
+ if proc3949 = '3949' then pr3949=pr3949+1;
+end;
+
+** Procedure - Repair of Blood Vessel **;
+prblood=0;            
+array procbld $ pr1-pr&NPR.;
+do over procbld;
+ if procbld in ('3956','3957','3958','3959') then prblood=prblood+1;
+end;
+ 
+** Procedure - Other Repair of Vessel **;
+pr3959=0;            
+array proc3959 $ pr1-pr&NPR.;
+do over proc3959;
+ if proc3959 = '3959' then pr3959=pr3959+1;
+end;
+
+** Procedure - Repair of ASD Secundum **;
+prasd2=0;            
+if dx7456 = 0 and prasd > 0 then prasd2=prasd+pr3598;
+
+********************************************************************************;
+* Assign Surgical Procedures and Risk Categories                               *;
+********************************************************************************;
+
+** PAPVC: Repair of PAPVC (Risk Category 1) **;
+
+IF chdsurg=' ' then do;         
+   if dx74742 > 0 and (pr3582 > 0 or prblood > 0 or pr3699 > 0 or MPR3EP > 0) and 
+      MPR1P <= pr3582+prblood+pr3699+MPR3EP+prasd2 then do;
+      multiple=0; chdsurg='papvc'; risk=1;
+   end;
+   ** Multiple procedures **;
+   ELSE IF dx74742 > 0 and (pr3582 > 0 or prblood > 0 or pr3699 > 0 or MPR3EP > 0) and
+           MPR1P > pr3582+prblood+pr3699+MPR3EP+prasd2 then do;
+           %MULTI('papvc',1);
+   END;
+END;
+
+** TAPVC: Repair of TAPVC, >30 days (Risk Category 2) **;
+IF chdsurg=' ' then do;         
+   if pr3582 > 0 and dx74742 = 0 and 
+      MPR1P <= pr3582+prblood+pr3699+MPR3EP+prasd2 and (AGE > 0 or AGEDAY >= 31) then do;
+      multiple=0; chdsurg='tapvc'; risk=2; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF pr3582 > 0 and dx74742 = 0 and 
+           MPR1P > pr3582+prblood+pr3699+MPR3EP+prasd2 and (AGE > 0 or AGEDAY >= 31) then do;
+           %MULTI('tapvc',2);
+   END;
+END;
+
+** TAPVCN: Repair of TAPVC, <=30 days (Risk Category 4) **;
+IF chdsurg=' ' then do;         
+   if pr3582 > 0 and dx74742 = 0 and 
+      MPR1P <= pr3582+prblood+pr3699+MPR3EP+prasd2 and (AGE = 0 and AGEDAY < 31) then do;
+      multiple=0; chdsurg='tapvcN'; risk=4; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF pr3582 > 0 and dx74742 = 0 and 
+           MPR1P > pr3582+prblood+pr3699+MPR3EP+prasd2 and (AGE = 0 and AGEDAY < 31) then do;
+           %MULTI('tapvcN',4);
+   END;
+END;
+
+** SYSTPA: Systemic to PA shunt (Risk Category 3)**;
+IF chdsurg=' ' then do;         
+   if pr390 > 0 and MPR1P <= pr390+prblood+pr3699+prpda then do;
+      multiple=0; chdsurg='systpa'; risk=3; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF pr390 > 0 and MPR1P > pr390+prblood+pr3699+prpda then do;
+           %MULTI('systpa',3);
+   END;
+END;
+
+** GLENN: Glenn shunt (Risk Category 2) **;
+IF chdsurg=' ' then do;         
+   if pr3921 > 0 and pr3594 = 0 and MPR1P <= pr3921+prblood+pr3699+prresec then do;
+      multiple=0; chdsurg='glenn'; risk=2; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF pr3921 > 0 and pr3594 = 0 and MPR1P > pr3921+prblood+pr3699+prresec then do;
+           %MULTI('glenn',2);
+   END;
+END;
+
+** DOUBLE: Double switch (Risk Category 4) **;
+IF chdsurg=' ' then do;         
+   if pr3584 > 0 and pr3591 > 0 and MPR1P <= pr3584+pr3591+pr3541+pr3542+prpda+prasd2 then do;
+      multiple=0; chdsurg='double'; risk=4; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF pr3584 > 0 and pr3591 > 0 and MPR1P > pr3584+pr3591+pr3541+pr3542+prpda+prasd2 then do;
+           %MULTI('double',4);
+   END;
+END;
+
+** ASOVSD: Arterial Switch Operation with VSD repair (Risk Category 4) **;
+IF chdsurg=' ' then do;         
+   if pr3584 > 0 and prvsd > 0 and MPR1P <= pr3584+prvsd+pr3541+pr3542+pr3733+prpda+prasd2 then do;
+      multiple=0; chdsurg='asovsd'; risk=4; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF pr3584 > 0 and prvsd > 0 and MPR1P > pr3584+prvsd+pr3541+pr3542+pr3733+prpda+prasd2 then do;
+           %MULTI('asovsd',4);
+   END;
+END;
+
+** ASO: Arterial Switch Operation (Risk Category 3) **;
+IF chdsurg=' ' then do;         
+   if pr3584 > 0 and MPR1P <= pr3584+pr3541+pr3542+prpda+prasd2 then do;
+      multiple=0; chdsurg='aso'; risk=3; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF pr3584 > 0 and MPR1P > pr3584+pr3541+pr3542+prpda+prasd2 then do;
+           %MULTI('aso',3);
+   END;
+END;
+
+** ATRIALVSD: Atrial Switch Operation with VSD repair (Risk Category 4) **;
+IF chdsurg=' ' then do;         
+   if pr3591 > 0 and prvsd > 0 and MPR1P <= pr3591+prvsd+pr3541+pr3542+pr3733+prpda+prasd2 then do;
+      multiple=0; chdsurg='atrialvsd'; risk=4; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF pr3591 > 0 and prvsd > 0 and MPR1P > pr3591+prvsd+pr3541+pr3542+pr3733+prpda+prasd2 then do;
+           %MULTI('atrialvsd',4);
+   END;
+END;
+
+** ATRIAL: Atrial Switch Operation (Risk Category 3) **;
+IF chdsurg=' ' then do;         
+   if pr3591 > 0 and MPR1P <= pr3591+pr3541+pr3542+prpda+prasd2 then do;
+      multiple=0; chdsurg='atrial'; risk=3; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF pr3591 > 0 and MPR1P > pr3591+pr3541+pr3542+prpda+prasd2 then do;
+           %MULTI('atrial',3);
+   END;
+END;
+
+** ASD1: ASD Primum Repair (Risk Category 2) **;
+IF chdsurg=' ' then do;         
+   if dx74561 > 0 and (prendo > 0 or prasd > 0) and 
+      MPR1P <= prendo+prasd+pr3512+pr3502+pr3533+pr3599+pr3733+prpda then do;
+      multiple=0; chdsurg='asd1'; risk=2; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF dx74561 > 0 and (prendo > 0 or prasd > 0) and 
+           MPR1P > prendo+prasd+pr3512+pr3502+pr3533+pr3599+pr3733+prpda then do;
+           %MULTI('asd1',2);
+   END;
+END;
+
+** CAVC: Repair of transitional or complete AVC (Risk Category 3) **;
+IF chdsurg=' ' then do;         
+   if prendo > 0 and dx74561 = 0 and
+      MPR1P <= prendo+pr3512+prmvr+pr3514+prvsd+pr3599+prpda+prasd then do;
+      multiple=0; chdsurg='cavc'; risk=3; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF prendo > 0 and dx74561 = 0 and
+           MPR1P > prendo+pr3512+prmvr+pr3514+prvsd+pr3599+prpda+prasd then do;
+           %MULTI('cavc',3);
+   END;
+END;
+
+** TOFPA: Repair of TOF with Pulmonary Atresia (Risk Category 3) **;
+IF chdsurg=' ' then do;         
+   if dx74601 > 0 and pr3581 > 0 and 
+      MPR1P <= pr3581+pr3592+prblood+pr3699+pr3733+MPR3EP+prasd2 then do;
+      multiple=0; chdsurg='tofpa'; risk=3; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF dx74601 > 0 and pr3581 > 0 and 
+           MPR1P > pr3581+pr3592+prblood+pr3699+pr3733+MPR3EP+prasd2 then do;
+           %MULTI('tofpa',3);
+   END;
+END;
+
+** TOFPA: Repair of TOF with Pulmonary Atresia (Risk Category 3) **;
+IF chdsurg=' ' then do;         
+   if dx74601 > 0 and dx7454 > 0 and pr3592 > 0 and prvsd > 0 and 
+      MPR1P <= pr3592+prvsd+prblood+pr3699+pr3733+MPR3EP+prasd2 then do;
+      multiple=0; chdsurg='tofpa'; risk=3; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF dx74601 > 0 and dx7454 > 0 and pr3592 > 0 and prvsd > 0 and 
+           MPR1P > pr3592+prvsd+prblood+pr3699+pr3733+MPR3EP+prasd2 then do;
+           %MULTI('tofpa',3);
+   END;
+END;
+
+** TOFPA: Repair of TOF with Pulmonary Atresia (Risk Category 3) **;
+IF chdsurg=' ' then do;         
+   if dx74601 > 0 and dx7454 > 0 and prpvr > 0 and prvsd > 0 and 
+      MPR1P <= prpvr+prvsd+pr3534+prblood+pr3699+pr3733+MPR3EP+prasd2 then do;
+      multiple=0; chdsurg='tofpa'; risk=3; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF dx74601 > 0 and dx7454 > 0 and prpvr > 0 and prvsd > 0 and 
+           MPR1P > prpvr+prvsd+pr3534+prblood+pr3699+pr3733+MPR3EP+prasd2 then do;
+           %MULTI('tofpa',3);
+   END;
+END;
+
+** TOFRVPA: Repair of TOF with RV to PA Conduit (Risk Category 3) **;
+IF chdsurg=' ' then do;         
+   if dx74601 = 0 and pr3581 > 0 and pr3592 > 0 and 
+      MPR1P <= pr3581+pr3592+prvsd+prblood+pr3699+pr3733+MPR3EP+prasd2 then do;
+      multiple=0; chdsurg='tofrvpa'; risk=3; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF dx74601 = 0 and pr3581 > 0 and pr3592 > 0 and 
+           MPR1P > pr3581+pr3592+prvsd+prblood+pr3699+pr3733+MPR3EP+prasd2 then do;
+           %MULTI('tofrvpa',3);
+   END;
+END;
+
+** TOF: Total Repair of TOF (Risk Category 2) **;
+IF chdsurg=' ' then do;         
+   if dx74601 = 0 and pr3581 > 0 and 
+      MPR1P <= pr3581+prvsd+pr3534+prblood+pr3699+pr3733+MPR3EP+prasd2 then do;
+      multiple=0; chdsurg='tof'; risk=2; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF dx74601 = 0 and pr3581 > 0 and 
+           MPR1P > pr3581+prvsd+pr3534+prblood+pr3699+pr3733+MPR3EP+prasd2 then do;
+           %MULTI('tof',2);
+   END;
+END;
+
+** KONNO: Konno procedure (Risk Category 4) **;
+IF chdsurg=' ' then do;         
+   if pr3592 > 0 and (pr3511 > 0 or pravr > 0) and 
+      MPR1P <= pr3592+pr3511+pravr+pr3501+pr3533+pr3599+pr3539+prblood+pr3699+pr3733+MPR3EP+prasd2 then do;
+      multiple=0; chdsurg='konno'; risk=4; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF pr3592 > 0 and (pr3511 > 0 or pravr > 0) and 
+           MPR1P > pr3592+pr3511+pravr+pr3501+pr3533+pr3599+pr3539+prblood+pr3699+pr3733+MPR3EP+prasd2 then do;
+           %MULTI('konno',4);
+   END;
+END;
+
+** RASTELLI: Rastelli procedure (Risk Category 4) **;
+IF chdsurg=' ' then do;         
+   if dxdorv > 0 and pr3592 > 0 and prvsd > 0  and MPR1P <= pr3592+prvsd+pr3733+MPR3EP+prasd2 then do;
+      multiple=0; chdsurg='rastelli'; risk=4; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF dxdorv > 0 and pr3592 > 0 and prvsd > 0  and MPR1P > pr3592+prvsd+pr3733+MPR3EP+prasd2 then do;
+           %MULTI('rastelli',4);
+   END;
+END;
+
+** VSDPV: VSD closure and Pulmonary Valvotomy (Risk Category 2) **;
+IF chdsurg=' ' then do;         
+   if prvsd > 0 and (pr3503 > 0 or pr3513 > 0 or pr3534 > 0) and 
+      MPR1P <= prvsd+pr3503+pr3513+pr3534+pr3533+pr3599+pr3733+prpda+prasd2 then do;
+      multiple=0; chdsurg='vsdpv'; risk=2; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF prvsd > 0 and (pr3503 > 0 or pr3513 > 0 or pr3534 > 0) and 
+           MPR1P > prvsd+pr3503+pr3513+pr3534+pr3533+pr3599+pr3733+prpda+prasd2 then do;
+           %MULTI('vsdpv',2);
+   END;
+END;
+
+** ROSS: Ross Procedure (Risk Category 3) **;
+IF chdsurg=' ' then do;         
+   if pravr > 0 and prpvr > 0 and 
+      MPR1P <= pravr+prpvr+pr3501+pr3511+pr3503+pr3513+pr3533+pr3599+prblood+pr3699+pr3733+prpda+prasd2 then do;
+      multiple=0; chdsurg='ross'; risk=3; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF pravr > 0 and prpvr > 0 and 
+           MPR1P > pravr+prpvr+pr3501+pr3511+pr3503+pr3513+pr3533+pr3599+prblood+pr3699+pr3733+prpda+prasd2 then do;
+           %MULTI('ross',3);
+   END;
+END;
+
+** TVEBST: TV reposition for Ebstein, >30 days (Risk Category 3) **;
+IF chdsurg=' ' then do;         
+   if dx7462 > 0 and (pr3533 > 0 or pr3514 > 0) and 
+      MPR1P <= pr3533+pr3514+pr3504+pr3599+pr3733+prpda+prasd2 and (AGE > 0 or AGEDAY >= 31) then do;
+      multiple=0; chdsurg='tvebst'; risk=3; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF dx7462 > 0 and (pr3533 > 0 or pr3514 > 0) and 
+           MPR1P > pr3533+pr3514+pr3504+pr3599+pr3733+prpda+prasd2 and (AGE > 0 or AGEDAY >= 31) then do;
+           %MULTI('tvebst',3);
+   END;
+END;
+
+** TVEBSTN: TV reposition for Ebstein, <=30 days (Risk Category 5) **;
+IF chdsurg=' ' then do;         
+   if dx7462 > 0 and (pr3533 > 0 or pr3514 > 0) and 
+      MPR1P <= pr3533+pr3514+pr3504+pr3599+pr3733+prpda+prasd2 and (AGE = 0 and AGEDAY < 31) then do;
+      multiple=0; chdsurg='tvebstN'; risk=5; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF dx7462 > 0 and (pr3533 > 0 or pr3514 > 0) and 
+           MPR1P > pr3533+pr3514+pr3504+pr3599+pr3733+prpda+prasd2 and (AGE = 0 and AGEDAY < 31) then do;
+           %MULTI('tvebstN',5);
+   END;
+END;
+
+** RVINFUND: RV infundibulectomy (Risk Category 2) **;
+IF chdsurg=' ' then do;         
+   if pr3534 > 0 and MPR1P <= pr3534+pr3503+pr3513+pr3533+pr3599+pr3733+prpda+prasd2 then do;
+      multiple=0; chdsurg='rvinfund'; risk=2; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF pr3534 > 0 and MPR1P > pr3534+pr3503+pr3513+pr3533+pr3599+pr3733+prpda+prasd2 then do;
+           %MULTI('rvinfund',2);
+   END;
+END;
+
+** PVR: Pulmonary Valve Replacement (Risk Category 2) **;
+IF chdsurg=' ' then do;         
+   if prpvr > 0 and 
+      MPR1P <= prpvr+pr3503+pr3513+pr3533+pr3599+prblood+pr3699+pr3733+prpda+prasd2 then do;
+      multiple=0; chdsurg='pvr'; risk=2; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF prpvr > 0 and 
+           MPR1P > prpvr+pr3503+pr3513+pr3533+pr3599+prblood+pr3699+pr3733+prpda+prasd2 then do;
+           %MULTI('pvr',2);
+   END;
+END;
+
+** PVALVU: Pulmonary Valvuloplasty (Risk Category 2) **;
+IF chdsurg=' ' then do;         
+   if pr3513 > 0 and MPR1P <= pr3513+pr3503+pr3533+pr3599+prblood+pr3699+pr3733+prpda+prasd2 then do;
+      multiple=0; chdsurg='pvalvu'; risk=2; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF pr3513 > 0 and MPR1P > pr3513+pr3503+pr3533+pr3599+prblood+pr3699+pr3733+prpda+prasd2 then do;
+           %MULTI('pvalvu',2);
+   END;
+END;
+
+** PVALVO: Pulmonary Valvotomy (Risk Category 2) **;
+IF chdsurg=' ' then do;         
+   if pr3503 > 0 and MPR1P <= pr3503+pr3599+prpda+prasd2 then do;
+      multiple=0; chdsurg='pvalvo'; risk=2; 
+   end;
+      ** Multiple procedures **;
+   ELSE IF pr3503 > 0 and MPR1P > pr3503+pr3599+prpda+prasd2 then do;
+           %MULTI('pvalvo',2);
+   END;
+END;
+
+** AVR: Aortic Valve Replacement (Risk Category 3) **;
+IF chdsurg=' ' then do;         
+   if pravr > 0 and 
+      MPR1P <= pravr+pr3501+pr3511+pr3533+pr3599+prblood+pr3699+pr3733+prpda+prasd2 then do;
+      multiple=0; chdsurg='avr'; risk=3; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF pravr > 0 and 
+           MPR1P > pravr+pr3501+pr3511+pr3533+pr3599+prblood+pr3699+pr3733+prpda+prasd2 then do;
+           %MULTI('avr',3);
+   END;
+END;
+
+** AOVALVU: Aortic valvuloplasty, >30 days (Risk Category 2) **;
+IF chdsurg=' ' then do;         
+   if pr3511 > 0 and MPR1P <= pr3511+pr3501+pr3533+pr3599+prblood+pr3699+pr3733+prpda+prasd2 and 
+      (AGE > 0 or AGEDAY >= 31) then do;
+      multiple=0; chdsurg='aovalvu'; risk=2; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF pr3511 > 0 and MPR1P > pr3511+pr3501+pr3533+pr3599+prblood+pr3699+pr3733+prpda+prasd2 and 
+           (AGE > 0 or AGEDAY >= 31) then do;
+           %MULTI('aovalvu',2);
+   END;
+END;
+
+** AOVALVUN: Aortic valvuloplasty, <=30 days (Risk Category 4) **;
+IF chdsurg=' ' then do;         
+   if pr3511 > 0 and MPR1P <= pr3511+pr3501+pr3533+pr3599+prblood+pr3699+pr3733+prpda+prasd2 and 
+      (AGE = 0 and AGEDAY < 31) then do;
+      multiple=0; chdsurg='aovalvuN'; risk=4; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF pr3511 > 0 and MPR1P > pr3511+pr3501+pr3533+pr3599+prblood+pr3699+pr3733+prpda+prasd2 and 
+           (AGE = 0 and AGEDAY < 31) then do;
+           %MULTI('aovalvuN',4);
+   END;
+END;
+
+** AOVALVO: Aortic valvotomy, >30 days (Risk Category 2) **;
+IF chdsurg=' ' then do;         
+   if pr3501 > 0 and MPR1P <= pr3501+pr3599+prpda+prasd2 and (AGE > 0 or AGEDAY >= 31) then do;
+      multiple=0; chdsurg='aovalvo'; risk=2; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF pr3501 > 0 and MPR1P > pr3501+pr3599+prpda+prasd2 and (AGE > 0 or AGEDAY >= 31) then do;
+           %MULTI('aovalvo',2);
+   END;
+END;
+
+** AOVALVON: Aortic valvotomy, <=30 days (Risk Category 4) **;
+IF chdsurg=' ' then do;         
+   if pr3501 > 0 and MPR1P <= pr3501+pr3599+prpda+prasd2 and (AGE = 0 and AGEDAY < 31) then do;
+      multiple=0; chdsurg='aovalvoN'; risk=4; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF pr3501 > 0 and MPR1P > pr3501+pr3599+prpda+prasd2 and (AGE = 0 and AGEDAY < 31) then do;
+           %MULTI('aovalvoN',4);
+   END;
+END;
+
+** MVR: Mitral Valve Replacement (Risk Category 3) **;
+IF chdsurg=' ' then do;         
+   if prmvr > 0 and 
+      MPR1P <= prmvr+pr3502+pr3512+pr3533+pr3599+pr3733+prpda+prasd2 then do;
+      multiple=0; chdsurg='mvr'; risk=3; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF prmvr > 0 and 
+           MPR1P > prmvr+pr3502+pr3512+pr3533+pr3599+pr3733+prpda+prasd2 then do;
+           %MULTI('mvr',3);
+   END;
+END;
+
+** MVALVU: Mitral Valvuloplasty (Risk Category 3) **;
+IF chdsurg=' ' then do;         
+   if pr3512 > 0 and MPR1P <= pr3512+pr3502+pr3533+pr3599+pr3733+prpda+prasd2 then do;
+      multiple=0; chdsurg='mvalvu'; risk=3; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF pr3512 > 0 and MPR1P > pr3512+pr3502+pr3533+pr3599+pr3733+prpda+prasd2 then do;
+           %MULTI('mvalvu',3);
+   END;
+END;
+
+** MVALVO: Mitral Valvotomy (Risk Category 3) **;
+IF chdsurg=' ' then do;         
+   if pr3502 > 0 and MPR1P <= pr3502+pr3599+prpda+prasd2 then do;
+      multiple=0; chdsurg='mvalvo'; risk=3; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF pr3502 > 0 and MPR1P > pr3502+pr3599+prpda+prasd2 then do;
+           %MULTI('mvalvo',3);
+   END;
+END;
+
+** TVR: Tricuspid Valve Replacement (Risk Category 3) **;
+IF chdsurg=' ' then do;         
+   if prtvr > 0 and 
+      MPR1P <= prtvr+pr3504+pr3514+pr3533+pr3599+pr3733+prpda+prasd2 then do;
+      multiple=0; chdsurg='tvr'; risk=3; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF prtvr > 0 and 
+           MPR1P > prtvr+pr3504+pr3514+pr3533+pr3599+pr3733+prpda+prasd2 then do;
+           %MULTI('tvr',3);
+   END;
+END;
+
+** TVALVU: Tricuspid Valvuloplasty (Risk Category 3) **;
+IF chdsurg=' ' then do;         
+   if pr3514 > 0 and 
+      MPR1P <= pr3514+pr3504+pr3533+pr3599+pr3733+prpda+prasd2 then do;
+      multiple=0; chdsurg='tvalvu'; risk=3; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF pr3514 > 0 and 
+           MPR1P > pr3514+pr3504+pr3533+pr3599+pr3733+prpda+prasd2 then do;
+           %MULTI('tvalvu',3);
+   END;
+END;
+
+** TVALVO: Tricuspid Valvotomy (Risk Category 3) **;
+IF chdsurg=' ' then do;         
+   if pr3504 > 0 and MPR1P <= pr3504+pr3599+prpda+prasd2 then do;
+      multiple=0; chdsurg='tvalvo'; risk=3; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF pr3504 > 0 and MPR1P > pr3504+pr3599+prpda+prasd2 then do;
+           %MULTI('tvalvo',3);
+   END;
+END;
+
+** ANNULO: Annuloplasty (Risk Category 3) **;
+IF chdsurg=' ' then do;         
+   if pr3533 > 0 and 
+      MPR1P <= pr3533+pr3599+prblood+pr3699+pr3733+prpda+prasd2 then do;
+      multiple=0; chdsurg='annulo'; risk=3; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF pr3533 > 0 and 
+           MPR1P > pr3533+pr3599+prblood+pr3699+pr3733+prpda+prasd2 then do;
+           %MULTI('annulo',3);
+   END;
+END;
+
+** SUBAS: Sub AS resection (Risk Category 2) **;
+IF chdsurg=' ' then do;         
+   if dx74681 > 0 and (pr3535 > 0 or pr3539 > 0 or pr3733 > 0) and 
+      MPR1P <= pr3535+pr3539+pr3733+prpda+prasd2 then do;
+      multiple=0; chdsurg='subas'; risk=2; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF dx74681 > 0 and (pr3535 > 0 or pr3539 > 0 or pr3733 > 0) and 
+           MPR1P > pr3535+pr3539+pr3733+prpda+prasd2 then do;
+           %MULTI('subas',2);
+   END;
+END;
+
+** USD: Repair of unspecified septal defect (Risk Category 2) **;
+IF chdsurg=' ' then do;         
+   if prusd > 0 and MPR1P <= prusd+prpda then do;
+      multiple=0; chdsurg='usd'; risk=2; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF prusd > 0 and MPR1P > prusd+prpda then do;
+           %MULTI('usd',2);
+   END;
+END;
+
+** CORTRIA: Repair of cor triatriatum (Risk Category 3) **;
+IF chdsurg=' ' then do;         
+   if dx74682 > 0 and (pr3598 > 0 or pr3733 > 0) and MPR1P <= pr3598+pr3733+prpda+prasd2 then do;
+      multiple=0; chdsurg='cortria'; risk=3; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF dx74682 > 0 and (pr3598 > 0  or pr3733 > 0) and MPR1P > pr3598+pr3733+prpda+prasd2 then do;
+           %MULTI('cortria',3);
+   END;
+END;
+
+** TAIAA: Repair of Truncus Arteriosus and IAA (Risk Category 5) **;
+IF chdsurg=' ' then do;         
+   if dx74711 > 0 and pr3583 > 0 and prresec > 0 and 
+      MPR1P <= pr3583+prresec+prvsd+pr3592+prblood+pr3699+pr3733+prasd2 then do;
+      multiple=0; chdsurg='taiaa'; risk=5; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF dx74711 > 0 and pr3583 > 0 and prresec > 0 and 
+           MPR1P > pr3583+prresec+prvsd+pr3592+prblood+pr3699+pr3733+prasd2 then do;
+           %MULTI('taiaa',5);
+   END;
+END;
+
+** TA: Repair of Truncus Arteriosus (Risk Category 4) **;
+IF chdsurg=' ' then do;         
+   if pr3583 > 0 and MPR1P <= pr3583+prvsd+pr3592+prblood+pr3699+pr3733+prpda+prasd2 then do;
+      multiple=0; chdsurg='ta'; risk=4; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF pr3583 > 0 and MPR1P > pr3583+prvsd+pr3592+prblood+pr3699+pr3733+prpda+prasd2 then do;
+           %MULTI('ta',4);
+   END;
+END;
+
+** HYIAAVSD: Repair of Hypo/IAA and VSD (Risk Category 4) **;
+IF chdsurg=' ' then do;         
+   if (dx74711 > 0 or dx74721 > 0) and prresec > 0 and prvsd > 0 and 
+      MPR1P <= prresec+prvsd+prblood+pr3699+pr3733+prasd2 then do;
+      multiple=0; chdsurg='hyiaavsd'; risk=4; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF (dx74711 > 0 or dx74721 > 0) and prresec > 0 and prvsd > 0 and 
+           MPR1P > prresec+prvsd+prblood+pr3699+pr3733+prasd2 then do;
+           %MULTI('hyiaavsd',4);
+   END;
+END;
+
+** HYIAA: Repair of Hypo/IAA (Risk Category 4) **;
+IF chdsurg=' ' then do;         
+   if (dx74711 > 0 or dx74721 > 0) and prresec > 0 and MPR1P <= prresec+prblood+pr3699 then do;
+      multiple=0; chdsurg='hyiaa'; risk=4; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF (dx74711 > 0 or dx74721 > 0) and prresec > 0 and MPR1P > prresec+prblood+pr3699 then do;
+           %MULTI('hyiaa',4);
+   END;
+END;
+
+** COAVSD: Repair of coarctation and VSD (Risk Category 3) **;
+IF chdsurg=' ' then do;         
+   if dx74710 > 0 and dx74711 = 0 and prresec > 0 and prvsd > 0 and 
+      MPR1P <= prresec+prvsd+prblood+pr3699+pr3733+prasd2 then do;
+      multiple=0; chdsurg='coavsd'; risk=3; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF dx74710 > 0 and dx74711 = 0 and prresec > 0 and prvsd > 0 and 
+           MPR1P > prresec+prvsd+prblood+pr3699+pr3733+prasd2 then do;
+           %MULTI('coavsd',3);
+   END;
+END;
+
+** COARCT: Coarctation repair, >30 days (Risk Category 1) **;
+IF chdsurg=' ' then do;          
+   if dx74710 > 0 and dx74711 = 0 and prresec > 0 and MPR1P <= prresec+prblood+pr3699 and 
+      (AGE > 0 or AGEDAY >= 31) then do;
+      multiple=0; chdsurg='coarct'; risk=1; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF dx74710 > 0 and dx74711 = 0 and prresec > 0 and MPR1P > prresec+prblood+pr3699 and 
+           (AGE > 0 or AGEDAY >= 31) then do;
+           %MULTI('coarct',1);
+   END;
+END;
+
+** COARCTN: Coarctation repair, <=30 days (Risk Category 2) **;
+IF chdsurg=' ' then do;         
+   if dx74710 > 0 and dx74711 = 0 and prresec > 0 and MPR1P <= prresec+prblood+pr3699 and 
+      (AGE = 0 and AGEDAY < 31) then do;
+      multiple=0; chdsurg='coarctN'; risk=2; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF dx74710 > 0 and dx74711 = 0 and prresec > 0 and MPR1P > prresec+prblood+pr3699 and 
+           (AGE = 0 and AGEDAY < 31) then do;
+           %MULTI('coarctN',2);
+   END;
+END;
+
+** APWIN: Repair of AP window (Risk Category 2) **;
+IF chdsurg=' ' then do;         
+   if dx7450 > 0 and (pr3959 > 0 or MPR3EP > 0) and MPR1P <= pr3959+MPR3EP then do;
+      multiple=0; chdsurg='apwin'; risk=2; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF dx7450 > 0 and (pr3959 > 0 or MPR3EP > 0) and MPR1P > pr3959+MPR3EP then do;
+           %MULTI('apwin',2);
+   END;
+END;
+
+** ASDVSD: ASD and VSD Repair (Risk Category 2) **;
+IF chdsurg=' ' then do;         
+   if prasd > 0 and prvsd > 0 and dx74561 = 0 and MPR1P <= prasd+prvsd+prpda then do;
+      multiple=0; chdsurg='asdvsd'; risk=2; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF prasd > 0 and prvsd > 0 and dx74561 = 0 and MPR1P > prasd+prvsd+prpda then do;
+           %MULTI('asdvsd',2);
+   END;
+END;
+
+** VSD: VSD Repair (Risk Category 2) **;
+IF chdsurg=' ' then do;         
+   if prvsd > 0 and MPR1P <= prvsd+prpda then do;
+      multiple=0; chdsurg='vsd'; risk=2; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF prvsd > 0 and MPR1P > prvsd+prpda then do;
+           %MULTI('vsd',2);
+   END;
+END;
+
+** ASD2: ASD secundum repair (Risk Category 1) **;
+IF chdsurg=' ' then do;
+   if dx7456 = 0 and prasd > 0 and MPR1P <= prasd+pr3598+prpda then do;
+      multiple=0; chdsurg='asd2'; risk=1; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF dx7456 = 0 and prasd > 0 and MPR1P > prasd+pr3598+prpda then do;
+           %MULTI('asd2',1);
+   END;
+END;
+
+** PDA: PDA surgery, >30 days (Risk Category 1) **;
+IF chdsurg=' ' then do;
+   if MDX3D > 0 and MDX2D=MDX3D and MPR3EP > 0 and MPR1P <= MPR3EP and (AGE > 0 or AGEDAY >= 31) then do; 
+      multiple=0; chdsurg='pda'; risk=1; 
+   end;
+END;
+
+** PABAND: Pulmonary Artery Band (Risk Category 3) **;
+IF chdsurg=' ' then do;
+   if (dx74560 > 0 or dx74569 > 0 or dx7454 > 0) and MDX2D=dx74560+dx74569+dx7454 and 
+      MPR3EP > 0 and MPR1P <= MPR3EP then do; 
+      multiple=0; chdsurg='paband'; risk=3; 
+   end;
+END;
+
+** FONTAN: Fontan procedure (Risk Category 3) **;
+IF chdsurg=' ' then do;         
+   if pr3594 > 0 and pr3581 = 0 and pr3583 = 0 and pr3584 = 0 and pr3591 = 0 and pr3592 = 0 and
+      pr3593 = 0 and pr390 = 0 and prvsd = 0 and prendo = 0 and 
+      MPR1P <= pr3594+pr3921+prblood+pr3699+pr3541+pr3542+prpda then do; 
+      multiple=0; chdsurg='fontan'; risk=3; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF pr3594 > 0 and pr3581 = 0 and pr3583 = 0 and pr3584 = 0 and pr3591 = 0 and pr3592 = 0 and
+           pr3593 = 0 and pr390 = 0 and prvsd = 0 and prendo = 0 and 
+           MPR1P > pr3594+pr3921+prblood+pr3699+pr3541+pr3542+prpda then do;
+           %MULTI('fontan',3);
+   END;
+END;
+
+** ATRSEPT: Atrial septectomy (Risk Category 4) **;
+IF chdsurg=' ' then do;
+   if (pr3541 > 0 or pr3542 > 0) and MPR1P <= pr3541+pr3542+prpda then do;
+      multiple=0; chdsurg='atrsept'; risk=4; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF (pr3541 > 0 or pr3542 > 0) and MPR1P > pr3541+pr3542+prpda then do;
+           %MULTI('atrsept',4);
+   END;
+END;
+
+** NORWOOD: Stage 1 Repair of HLHS (Risk Category 6) **;
+IF chdsurg=' ' then do;         
+   if dx7467 > 0 and MDX2D = dx7467+dx7455+dx7463+dx7465+MDX3D+dx74710+dx74722+dx74789 and 
+      pr3594 = 0 and pr3595 = 0 and pr3921 = 0 and 
+      (pr3541 > 0 or pr3542 > 0) and
+      (pr390 > 0 or pr3592 > 0) and
+      (prresec > 0 or prblood > 0 or pr3699 > 0) and 
+      MPR1P <= pr3541+pr3542+pr390+pr3592+prresec+prblood+pr3699+pr3733 then do;
+      multiple=0; chdsurg='norwood'; risk=6; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF dx7467 > 0 and MDX2D = dx7467+dx7455+dx7463+dx7465+MDX3D+dx74710+dx74722+dx74789 and 
+           pr3594 = 0 and pr3595 = 0 and pr3921 = 0 and 
+           (pr3541 > 0 or pr3542 > 0) and
+           (pr390 > 0 or pr3592 > 0) and
+           (prresec > 0 or prblood > 0 or pr3699 > 0) and 
+           MPR1P > pr3541+pr3542+pr390+pr3592+prresec+prblood+pr3699+pr3733 then do;
+           %MULTI('norwood',6);
+   END;
+END;
+
+** NORWOODNO: Stage 1 Repair of Non-HLHS (Risk Category 6) **;
+IF chdsurg=' ' then do;         
+   if pr3594 = 0 and pr3595 = 0 and pr3921 = 0 and 
+      (pr3541 > 0 or pr3542 > 0) and
+      (pr390 > 0 or pr3592 > 0) and
+      (prresec > 0 or prblood > 0 or pr3699 > 0) and
+      MPR1P <= pr3541+pr3542+pr390+pr3592+prresec+prblood+pr3699+pr3733 then do;
+      multiple=0; chdsurg='norwoodno'; risk=6; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF pr3594 = 0 and pr3595 = 0 and pr3921 = 0 and 
+           (pr3541 > 0 or pr3542 > 0) and
+           (pr390 > 0 or pr3592 > 0) and
+           (prresec > 0 or prblood > 0 or pr3699 > 0) and
+           MPR1P > pr3541+pr3542+pr390+pr3592+prresec+prblood+pr3699+pr3733 then do;
+           %MULTI('norwoodno',6);
+   END;
+END;
+
+** RVPA: RV to PA conduit (Risk Category 3) **;
+IF chdsurg=' ' then do;         
+   if pr3592 > 0 and pr3581 = 0 and pr3583 = 0 and pr3584 = 0 and pr3594 = 0 and 
+      MPR1P <= pr3592+pr3595+pr3949+prpda+prasd2 then do; 
+      multiple=0; chdsurg='rvpa'; risk=3; 
+   end;
+   ** Multiple procedures **;
+   ELSE IF pr3592 > 0 and pr3581 = 0 and pr3583 = 0 and pr3584 = 0 and pr3594 = 0 and
+           MPR1P > pr3592+pr3595+pr3949+prpda+prasd2 then do;
+           %MULTI('rvpa',3);
+   END;
+END;
+
+** XRISK: Unassigned procedures **;
+IF chdsurg=' ' then do;
+   if MPR3EP > 0 and MPR1P <= MPR3EP and MDX3D > 0 then do; 
+      multiple=.; chdsurg='xrisk'; risk=0; 
+   end;
+   else if pr3500 > 0 then do; multiple=.; chdsurg='xrisk'; risk=0; end;
+   else if pr3510 > 0 then do; multiple=.; chdsurg='xrisk'; risk=0; end;
+   else if pr3520 > 0 then do; multiple=.; chdsurg='xrisk'; risk=0; end;
+   else if pr3531 > 0 then do; multiple=.; chdsurg='xrisk'; risk=0; end;
+   else if pr3532 > 0 then do; multiple=.; chdsurg='xrisk'; risk=0; end;
+   else if pr3593 > 0 then do; multiple=.; chdsurg='xrisk'; risk=0; end;
+   else if pr3595 > 0 and chdsurg1 ne 'rvpa' and chdsurg2 ne 'rvpa' and chdsurg3 ne 'rvpa' and 
+           chdsurg4 ne 'rvpa' and chdsurg5 ne 'rvpa' and chdsurg6 ne 'rvpa' and chdsurg7 ne 'rvpa' and 
+           chdsurg8 ne 'rvpa' and chdsurg9 ne 'rvpa' then do; 
+           multiple=.; chdsurg='xrisk'; risk=0; 
+   end;
+   else if pr3949 > 0 and chdsurg1 ne 'rvpa' and chdsurg2 ne 'rvpa' and chdsurg3 ne 'rvpa' and 
+           chdsurg4 ne 'rvpa' and chdsurg5 ne 'rvpa' and chdsurg6 ne 'rvpa' and chdsurg7 ne 'rvpa' and 
+           chdsurg8 ne 'rvpa' and chdsurg9 ne 'rvpa' then do; 
+           multiple=.; chdsurg='xrisk'; risk=0; 
+   end;
+   else if multiple=. then do; 
+           multiple=.; chdsurg='xrisk'; risk=0; 
+   end;
+END;
+  
+********************************************************************************;
+* Create final RACHS-1 variable from single and multiple surgeries             *;
+********************************************************************************;
+HPPD06=risk;
+if HPPD06=. then HPPD06=max(of risk1-risk9);
+
+label
+  HPPD06   = 'RACHS-1 Risk Category'
+  MDX4D    = 'Premature Infant'
+  chdsurg  = 'Congenital Heart Disease Procedure'
+  multiple = 'Multiple Procedures'
+  strcabn  = 'Non-cardiac Structural Anomalies'
+;
+
+DROP chdsurg1 chdsurg2
+chdsurg3 chdsurg4 chdsurg5
+chdsurg6 chdsurg7 chdsurg8
+chdsurg9 dx7450 dx7452
+dx7454 dx7455 dx7456
+dx74560 dx74561 dx74569
+dx74601 dx7462 dx7463
+dx7465 dx7467 dx74681
+dx74682 dx74710 dx74711
+dx74721 dx74722 dx74742
+dx74789 dxdorv 
+pr3500 pr3501 pr3502
+pr3503 pr3504 pr3510
+pr3511 pr3512 pr3513
+pr3514 pr3520 pr3531
+pr3532 pr3533 pr3534
+pr3535 pr3539 pr3541
+pr3542 pr3581 pr3582
+pr3583 pr3584 pr3591
+pr3592 pr3593 pr3594
+pr3595 pr3598 pr3599
+pr3699 pr3733 pr3884
+pr390 pr3921 pr3949
+pr3959 prasd prasd2
+pravr prblood prendo
+prmvr prpda
+prpvr prresec prtvr
+prusd prvsd risk 
+risk1 risk2 risk3 
+risk4 risk5 risk6
+risk7 risk8 risk9
+;
+
