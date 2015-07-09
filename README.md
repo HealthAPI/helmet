@@ -50,7 +50,7 @@ Our product will provide healthcare developers with an easy way to integrate the
 
 A sample request to retrieve the output of the HCC model for a specific patient could look something like the following:
 
-```json
+```javascript
 {
   "request_id": "1234567890",
   "account_id": "123456",
@@ -67,14 +67,14 @@ A sample request to retrieve the output of the HCC model for a specific patient 
       "diagnosis_date": "02/21/1991",
       "last_office_visit": "03/25/2014"
     },
-    "comments": "some random comments or something"
+    "__comments": "some random comments or something"
   }
 }
 ```
 
 And a sample response to the above request could look something like this:
 
-```json
+```javascript
 {
   "request_id": "1234567890",
   "account_id": "123456",
@@ -91,6 +91,9 @@ And a sample response to the above request could look something like this:
 This will enable any healthcare application to incorporate high levels of clinical intelligence into their product, without having to do any of the heavy lifting themselves.
 
 ### Starting points
+
+ > [View the project issues](https://github.com/HealthAPI/helmet/issues) to follow the discussion on overall strategy and starting points.
+
 
 Relying heavily on both industry experience and statistical modeling expertise, we can begin by identifying the top 5-10 most prevalent algorithms/models/methodologies across the industry.  We should prioritize our model selection/build based on the following criteria:
 
