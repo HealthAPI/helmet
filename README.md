@@ -24,11 +24,11 @@ At the same time, we're seeing a completely new level of innovation surrounding 
 
 These new algorithms/methodologies aren't just stuck somewhere in an ivory tower, either.  They are already being put to use.  Hospitals and clinics are using these predictive methodologies to help identify patients in need of proactive intervention.  But perhaps even more importantly, **insurance companies have began using these algorithms to help determine physician compensation.**  To take a simplified example, a physician will earn a higher level of reimbursement from an insurance company if he/she can keep the total risk score of their patient population under a certain threshold.
 
-This all boils down to a simple point: ***The results of these new/advanced algorithms are in high demand by healthcare organizations, and the ability to implement these algorithms into their product will become a minimum price of entry for any new healthcare applications.***
+This all boils down to a simple point: ***The results of these new/advanced algorithms are in high demand by healthcare organizations, and the ability to implement these algorithms into new healthcare applications will become a minimum price of entry for any new healthcare app developers.***
 
 # The Product
 
-The proposed product is simple: an API that allows healthcare developers to easily incorporate these complex metrics into their application, without having to hire an entire data science team to do so.
+The proposed product is simple: ***Healthcare-specific DataScience-as-a-Service***.  We'll accomplish this by building an API that allows healthcare developers to easily incorporate these complex metrics into their application, without having to hire an entire data science team to do so.
 
 In one way or another, the results of these algorithms/models matter to *everyone*.  For insurance companies, they matter because they help project future costs.  For doctors, they matter because they influence physician compensation.  For patients, they matter because they can indicate patient's likeliness to become seriously ill.  ***Essentially, if you're building a new healthcare application for any audience in the industry, you will need to include these metrics in your product.***
 
@@ -50,7 +50,7 @@ Our product will provide healthcare developers with an easy way to integrate the
 
 A sample request to retrieve the output of the HCC model for a specific patient could look something like the following:
 
-```javascript
+```json
 {
   "request_id": "1234567890",
   "account_id": "123456",
@@ -67,14 +67,14 @@ A sample request to retrieve the output of the HCC model for a specific patient 
       "diagnosis_date": "02/21/1991",
       "last_office_visit": "03/25/2014"
     },
-    "__comments": "some random comments or something"
+    "comments": "some random comments or something"
   }
 }
 ```
 
 And a sample response to the above request could look something like this:
 
-```javascript
+```json
 {
   "request_id": "1234567890",
   "account_id": "123456",
@@ -91,9 +91,6 @@ And a sample response to the above request could look something like this:
 This will enable any healthcare application to incorporate high levels of clinical intelligence into their product, without having to do any of the heavy lifting themselves.
 
 ### Starting points
-
- > [View the project issues](https://github.com/HealthAPI/helmet/issues) to follow the discussion on overall strategy and starting points.
-
 
 Relying heavily on both industry experience and statistical modeling expertise, we can begin by identifying the top 5-10 most prevalent algorithms/models/methodologies across the industry.  We should prioritize our model selection/build based on the following criteria:
 
